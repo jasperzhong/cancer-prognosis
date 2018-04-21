@@ -9,9 +9,10 @@ import numpy as np
 from model import CNN
 from data_loder import DataLoader
 
+
 EPOCH = 1000
-LR = 0.000005
-BATCH_SIZE = 8
+LR = 0.0000003
+BATCH_SIZE = 4
 
 logger = logging.getLogger(__name__)
 logger.setLevel(level = logging.INFO)
@@ -36,7 +37,10 @@ except:
     net = CNN()
 net.cuda()
 
-optimizer = torch.optim.SGD(net.parameters(),lr=LR, weight_decay=0.1, momentum=0.9)
+
+
+optimizer = torch.optim.SGD(net.parameters(),lr=LR, weight_decay=2.5, momentum=0.9)
+scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=75, gamma=0.33)
 
 loss_func = nn.MSELoss()
 
@@ -46,6 +50,7 @@ train, test = data_loder.start(BATCH_SIZE)
 train_loss = []
 test_loss = []
 for epoch in range(epoch0, epoch0+EPOCH):
+    scheduler.step()
     step = 0
     losses = 0
     for X, y in train:

@@ -8,98 +8,81 @@ class CNN(nn.Module):
         self.conv1 = nn.Sequential(
             nn.Conv2d(
                 in_channels = 1,
-                out_channels = 20,
+                out_channels = 16,
                 kernel_size = 5,
-                stride=1
-            ), #20x508x508
-            nn.BatchNorm2d(20),
-            nn.MaxPool2d(kernel_size=2) #20x254x254
+                stride=1,
+            ),  #16x508x508
+            nn.BatchNorm2d(16),
+            nn.MaxPool2d(kernel_size=2), #16x254x254
         )
         self.conv2 = nn.Sequential(
             nn.Conv2d(
-                in_channels = 20,
-                out_channels = 50,
+                in_channels = 16,
+                out_channels = 32,
                 kernel_size = 5,
-                stride=1
-            ), #50x250x250
-            nn.BatchNorm2d(50),
-            nn.MaxPool2d(kernel_size=2) #50x125x125
+                stride=1,
+            ),  #32x250x250
+            nn.BatchNorm2d(32),
+            nn.MaxPool2d(kernel_size=2), #32x125x125
         )
         self.conv3 = nn.Sequential(
             nn.Conv2d(
-                in_channels = 50,
-                out_channels = 100,
+                in_channels = 32,
+                out_channels = 64,
                 kernel_size = 4,
-                stride=1
-            ), #100x122x122
-            nn.BatchNorm2d(100),
-            nn.MaxPool2d(kernel_size=2) #100x61x61
+                stride=1,
+            ),  #64x122x122
+            nn.BatchNorm2d(64),
+            nn.MaxPool2d(kernel_size=2), #64x61x61
         )
-
-        self.conv3_4 = nn.Sequential(
-            nn.Conv2d(
-                in_channels = 100,
-                out_channels = 100,
-                kernel_size = 3,
-                stride=1
-            ), #100x59x59
-            nn.BatchNorm2d(100),
-            nn.ReLU()
-        )
-
         self.conv4 = nn.Sequential(
             nn.Conv2d(
-                in_channels = 100,
-                out_channels = 300,
+                in_channels = 64,
+                out_channels = 128,
                 kernel_size = 4,
-                stride=1
-            ), #300x56x56
-            nn.BatchNorm2d(300),
-            nn.MaxPool2d(kernel_size=2) #300x28x28
+                stride=1,
+            ),  #128x58x58
+            nn.BatchNorm2d(128),
+            nn.MaxPool2d(kernel_size=2), #128x29xx29
         )
         self.conv5 = nn.Sequential(
             nn.Conv2d(
-                in_channels = 300,
-                out_channels = 500,
-                kernel_size = 3,
-                stride=1
-            ), #500x26x26
-            nn.BatchNorm2d(500),
-            nn.MaxPool2d(kernel_size=2) #500x13x13
+                in_channels = 128,
+                out_channels = 256,
+                kernel_size = 2,
+                stride=1,
+            ),  #256x28x28
+            nn.BatchNorm2d(256),
+            nn.MaxPool2d(kernel_size=2), #256x14x14
         )
         self.conv6 = nn.Sequential(
             nn.Conv2d(
-                in_channels = 500,
-                out_channels = 800,
-                kernel_size = 4,
-                stride=1
-            ), #800x10x10
-            nn.BatchNorm2d(800),
-            nn.MaxPool2d(kernel_size=2) #800x5x5
+                in_channels = 256,
+                out_channels = 512,
+                kernel_size = 3,
+                stride=1,
+            ),  #512x12x12
+            nn.BatchNorm2d(512),
+            nn.MaxPool2d(kernel_size=2), #512x6x6
         )
 
+
         self.fc1 = nn.Sequential(
-            nn.Linear(20000, 1000),
+            nn.Linear(512*6*6, 1024),
             nn.Dropout(0.5),
             nn.ReLU()
         )
-        self.fc2 = nn.Sequential(
-            nn.Linear(1000, 100),
-            nn.Dropout(0.5),
-            nn.ReLU()
-        )
-        self.out = nn.Linear(100, 2)
+        self.out = nn.Linear(1024, 2)
 
     def forward(self, x):
         x = self.conv1(x)
         x = self.conv2(x)
         x = self.conv3(x)
-        x = self.conv3_4(x)
         x = self.conv4(x)
         x = self.conv5(x)
         x = self.conv6(x)
+
         x = x.view(x.size(0), -1)
         x = self.fc1(x)
-        x = self.fc2(x)
         x = self.out(x)
         return x
