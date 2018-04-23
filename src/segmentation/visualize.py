@@ -1,7 +1,7 @@
 import re
 import matplotlib.pyplot as plt
 
-with open('/home/yuchen/Programs/cancer-prognosis//train.log', 'r') as file:
+with open('/home/yuchen/Programs/cancer-prognosis/train.log', 'r') as file:
     contents = file.read()
 
 pattern = re.compile("-?\d+\.\d+")

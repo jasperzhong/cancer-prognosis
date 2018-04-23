@@ -6,36 +6,35 @@ from torch.autograd import Variable
 import torch.nn as nn
 import numpy as np
 
-from model import CNN
+from model import FCN
 from data_loader import DataLoader
 
 
 EPOCH = 1000
-LR = 0.0000003
-BATCH_SIZE = 4
+LR = 0.000003
+BATCH_SIZE = 1
 
 logger = logging.getLogger(__name__)
 logger.setLevel(level = logging.INFO)
-handler = logging.FileHandler("drive/GPU/train.txt")
+handler = logging.FileHandler("/home/yuchen/Programs/cancer-prognosis/train.log")
 handler.setLevel(logging.INFO)
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 handler.setFormatter(formatter)
 
 console = logging.StreamHandler()
-console.setFormatter(formatter)
 console.setLevel(logging.INFO)
 
 logger.addHandler(handler)
 logger.addHandler(console)
 
-with open("drive/GPU/lowest_loss.txt", 'r') as file:
+with open("/home/yuchen/Programs/cancer-prognosis/lowest_loss.txt", 'r') as file:
     lowest_loss = float(file.readline())
     epoch0 = int(file.readline())
 print("Last Train: lowest_loss %f , epoch0 %d" % (lowest_loss, epoch0))
 try:
-    net = torch.load('drive/GPU/seg_model.pkl')
+    net = torch.load('/home/yuchen/Programs/cancer-prognosis/seg_model.pkl')
 except:
-    net = CNN()
+    net = FCN()
 net.cuda()
 
 
@@ -84,9 +83,9 @@ for epoch in range(epoch0, epoch0+EPOCH):
 
     if epoch%5 == 0 and test_loss/test_step < lowest_loss:
         lowest_loss = test_loss/test_step 
-        torch.save(net, 'drive/GPU/seg_model.pkl')
-        with open("drive/GPU/lowest_loss.txt", 'w') as file:
-            file.write(str(lowest_loss))
+        torch.save(net, '/home/yuchen/Programs/cancer-prognosis/seg_model.pkl')
+        with open("/home/yuchen/Programs/cancer-prognosis/lowest_loss.txt", 'w') as file:
+            file.write(str(lowest_loss.data))
             file.write("\n")
             file.write(str(epoch))
         logger.info("[Model Update]")

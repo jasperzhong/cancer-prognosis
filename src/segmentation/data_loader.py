@@ -10,7 +10,7 @@ from utils import Batchgen
 
 class DataLoader(object):
     def __init__(self):
-        self.data_path = 'drive/GPU/data'
+        self.data_path = '/home/yuchen/Programs/cancer-prognosis/data/raw'
         self.data_size = None
         self.save_size = 100
         self.X = []
@@ -24,7 +24,7 @@ class DataLoader(object):
         if not get_stored:
             self.get_data()    
 
-        files = os.listdir('drive/GPU/data')
+        files = os.listdir('/home/yuchen/Programs/cancer-prognosis/data/train')
         length = int(len(files)/2)
 
         for i in range(length):
@@ -38,6 +38,12 @@ class DataLoader(object):
             test = Batchgen(self.test_X, self.test_y, batch_size)
             yield train, test
         raise StopIteration
+    
+    def test(self):
+        files = os.listdir('/home/yuchen/Programs/cancer-prognosis/data/raw')
+        files.sort(key= lambda x:int(x[:-4]))
+        for file in files:
+            pass
 
     def reset(self, batch_size):
         train = Batchgen(self.train_X, self.train_y, batch_size)
@@ -60,7 +66,7 @@ class DataLoader(object):
         files.sort(key= lambda x:int(x[:-4]))
         self.data_size = len(files)
         
-        df = pd.read_excel("drive/GPU/data.xlsx")
+        df = pd.read_excel("/home/yuchen/Programs/cancer-prognosis/data/data.xlsx")
         contours = df["contour"]
         poses = df["pos"]
 
@@ -123,11 +129,11 @@ class DataLoader(object):
         self.test_y = self.y[80:-1]
 
     def save(self, i):
-        np.save("drive/GPU/data/X"+str(i)+".npy", self.X)
-        np.save("drive/GPU/data/y"+str(i)+".npy", self.y)
+        np.save("/home/yuchen/Programs/cancer-prognosis/data/processed/X"+str(i)+".npy", self.X)
+        np.save("/home/yuchen/Programs/cancer-prognosis/data/processed/y"+str(i)+".npy", self.y)
     
     def load(self, i):
-        self.X = np.load("drive/GPU/data/X"+str(i)+".npy")
-        self.y = np.load("drive/GPU/data/y"+str(i)+".npy")
+        self.X = np.load("/home/yuchen/Programs/cancer-prognosis/data/train/X"+str(i)+".npy")
+        self.y = np.load("/home/yuchen/Programs/cancer-prognosis/data/train/y"+str(i)+".npy")
 
 
