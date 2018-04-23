@@ -18,6 +18,6 @@ test =  [results[i] for i in range(1,length, 2)]
 l1, = plt.plot(range(length//2), train, 'r')
 l2, = plt.plot(range(length//2), test, 'b')
 plt.xlabel('Epoch')
-plt.ylabel('MSELoss')
-plt.legend(handles=[l1,l2], labels=['train', 'test'], loc='best' )
+plt.ylabel('NLLoss2d')
+plt.legend(handles=[l1,l2], labels=['train', 'validation'], loc='best' )
 plt.show()

@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import numpy as np
 
 class FCN(nn.Module):
     def __init__(self):
@@ -85,74 +86,39 @@ class FCN(nn.Module):
 
         self.conv11 = nn.Conv2d(
             in_channels=512,
-            out_channels=512,
+            out_channels=1024,
             kernel_size=3,
             stride=1,
             padding=1
-        )#512x32x32
+        )#1024x32x32
         self.conv12 = nn.Conv2d(
-            in_channels=512,
-            out_channels=512,
+            in_channels=1024,
+            out_channels=1024,
             kernel_size=3,
             stride=1,
             padding=1
-        )#512x32x32
+        )#1024x32x32
         self.conv13 = nn.Conv2d(
-            in_channels=512,
-            out_channels=512,
+            in_channels=1024,
+            out_channels=1024,
             kernel_size=3,
             stride=1,
             padding=1
-        )#512x32x32
+        )#1024x32x32
 
-        self.conv14 = nn.Conv2d(
-            in_channels=256,
-            out_channels=128,
-            kernel_size=1,
-            stride=1,
-            padding=0
-        )#128x128x128
-        self.upsample4 = nn.Upsample(scale_factor=4, mode='bilinear') #128x512x512
-        self.conv15 = nn.Conv2d(
-            in_channels=128,
-            out_channels=2,
-            kernel_size=1,
-            stride=1,
-            padding=0
-        )#1x512x512
 
-        self.conv16 = nn.Conv2d(
-            in_channels=512,
-            out_channels=128,
-            kernel_size=1,
-            stride=1,
-            padding=0
-        )#128x64x64
-        self.upsample8 = nn.Upsample(scale_factor=8, mode='bilinear') #128x512x512
-        self.conv17 = nn.Conv2d(
-            in_channels=128,
-            out_channels=2,
-            kernel_size=1,
-            stride=1,
-            padding=0
-        )#1x512x512
+        self.scores1 = nn.Conv2d(1024, 2, 1)
+        self.scores2 = nn.Conv2d(512, 2, 1)
+        self.scores3 = nn.Conv2d(256, 2, 1)
+        
+        self.upsample_8x = nn.ConvTranspose2d(2,2,8,4,2,bias=False)
+        self.upsample_8x.weight.data = bilinear_kernel(2, 2, 8)
 
-        self.conv18 = nn.Conv2d(
-            in_channels=512,
-            out_channels=128,
-            kernel_size=1,
-            stride=1,
-            padding=0
-        )#128x32x32
-        self.upsample16 = nn.Upsample(scale_factor=16, mode='bilinear') #128x512x512
-        self.conv19 = nn.Conv2d(
-            in_channels=128,
-            out_channels=2,
-            kernel_size=1,
-            stride=1,
-            padding=0
-        )#1x512x512
+        self.upsample_4x = nn.ConvTranspose2d(2,2,4,2,1,bias=False)
+        self.upsample_4x.weight.data = bilinear_kernel(2, 2, 4)
 
+        self.upsample_2x = nn.ConvTranspose2d(2,2,4,2,1,bias=False)
+        self.upsample_2x.weight.data = bilinear_kernel(2, 2, 4)
 
 
     def forward(self, x):
@@ -167,32 +133,44 @@ class FCN(nn.Module):
         x = self.conv5(x)
         x = self.conv6(x)
         x = self.conv7(x)
-        stage1 = x
+        s1 = x.clone()#256x128x128
         x = self.maxpooling3(x)
 
         x = self.conv8(x)
         x = self.conv9(x)
         x = self.conv10(x)
-        stage2 = x
+        s2 = x.clone()#512x64x64
         x = self.maxpooling4(x)
 
         x = self.conv11(x)
         x = self.conv12(x)
         x = self.conv13(x)
-        stage3 = x
+        s3 = x.clone()#1024x32x32
 
-        stage3 = self.conv18(stage3)
-        stage3 = self.upsample16(stage3)
-        stage3 = self.conv19(stage3)
+        s3 = self.scores1(s3)#2x32x32
+        s3 = self.upsample_2x(s3) #2x64x64
+        s2 = self.scores2(s2)#2x64x64
+        s2 = s2 + s3 
 
-        stage2 = self.conv16(stage2)
-        stage2 = self.upsample8(stage2)
-        stage2 = self.conv17(stage2)
+        s1 = self.scores3(s1)
+        s2 = self.upsample_4x(s2)#2x128x128
+        s = s1 + s2 
 
-        stage1 = self.conv14(stage1)
-        stage1 = self.upsample4(stage1)
-        stage1 = self.conv15(stage1)
-
-        result = (stage1 + stage2 + stage3)/3
-        return result
+        s = self.upsample_8x(s) #2x512x512
         
+        return s
+
+def bilinear_kernel(in_channels, out_channels, kernel_size):
+    '''
+    return a bilinear filter tensor
+    '''
+    factor = (kernel_size + 1) // 2
+    if kernel_size % 2 == 1:
+        center = factor - 1
+    else:
+        center = factor - 0.5
+    og = np.ogrid[:kernel_size, :kernel_size]
+    filt = (1 - abs(og[0] - center) / factor) * (1 - abs(og[1] - center) / factor)
+    weight = np.zeros((in_channels, out_channels, kernel_size, kernel_size), dtype='float32')
+    weight[range(in_channels), range(out_channels), :, :] = filt
+    return torch.from_numpy(weight)

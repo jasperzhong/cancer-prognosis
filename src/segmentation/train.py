@@ -11,7 +11,7 @@ from data_loader import DataLoader
 
 
 EPOCH = 1000
-LR = 0.000003
+LR = 0.0001
 BATCH_SIZE = 1
 
 logger = logging.getLogger(__name__)
@@ -38,8 +38,8 @@ except:
 net.cuda()
 
 
-optimizer = torch.optim.SGD(net.parameters(),lr=LR, weight_decay=2.5, momentum=0.9)
-scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=75, gamma=0.33)
+optimizer = torch.optim.SGD(net.parameters(),lr=LR, weight_decay=0.5, momentum=0.9)
+scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=10, gamma=0.1)
 
 loss_func = nn.NLLLoss2d()
 
@@ -57,7 +57,7 @@ for epoch in range(epoch0, epoch0+EPOCH):
             y = torch.LongTensor(y)
             X = Variable(X).cuda()
             y = Variable(y).cuda()
-
+            
             output = net(X)
             loss = loss_func(output, y)
             train_loss += loss.data[0]
