@@ -40,11 +40,13 @@ class DataLoader(object):
         raise StopIteration
     
     def test(self):
-        files = os.listdir('/home/yuchen/Programs/cancer-prognosis/data/raw')
+        files = os.listdir('/home/yuchen/Programs/cancer-prognosis/data/test')
         files.sort(key= lambda x:int(x[:-4]))
         for file in files:
-            pass
-
+            file = os.path.join('/home/yuchen/Programs/cancer-prognosis/data/test', file)
+            dcm = pc.read_file(file)
+            yield dcm.pixel_array
+            
     def reset(self, batch_size):
         train = Batchgen(self.train_X, self.train_y, batch_size)
         test = Batchgen(self.test_X, self.test_y, batch_size)

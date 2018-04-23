@@ -30,5 +30,16 @@ class Batchgen(object):
 
         raise StopIteration
 
+def normalize(img):
+    max_ = np.max(img)
+    img = img / max_
+    return img
+
+def centralize(img):
+    img = img.astype('float64')
+    mean = np.mean(img)
+    img -= mean
+    return img
+
 
 
