@@ -24,7 +24,7 @@ class DataLoader(object):
         if not get_stored:
             self.get_data()    
 
-        files = os.listdir('/home/yuchen/Programs/cancer-prognosis/data/train')
+        files = os.listdir('/home/yuchen/Programs/cancer-prognosis/data/train2')
         length = int(len(files)/2)
 
         for i in range(length):
@@ -135,7 +135,7 @@ class DataLoader(object):
         np.save("/home/yuchen/Programs/cancer-prognosis/data/processed/y"+str(i)+".npy", self.y)
     
     def load(self, i):
-        self.X = np.load("/home/yuchen/Programs/cancer-prognosis/data/train/X"+str(i)+".npy")
-        self.y = np.load("/home/yuchen/Programs/cancer-prognosis/data/train/y"+str(i)+".npy")
+        self.X = np.load("/home/yuchen/Programs/cancer-prognosis/data/train2/X"+str(i)+".npy")
+        self.y = np.load("/home/yuchen/Programs/cancer-prognosis/data/train2/y"+str(i)+".npy")
 
 

@@ -2,110 +2,147 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
-
 class FCN(nn.Module):
     def __init__(self):
         super(FCN, self).__init__()
-        self.conv1 = nn.Conv2d(
-            in_channels = 1,
-            out_channels = 64,
-            kernel_size = 3,
-            stride=1,
-            padding=1
-        )#64x512x512
-        self.conv2 = nn.Conv2d(
-            in_channels = 64,
-            out_channels = 64,
-            kernel_size = 3,
-            stride=1,
-            padding=1
-        )#64x512x512
+        self.conv1 = nn.Sequential(
+            nn.Conv2d(
+                in_channels = 1,
+                out_channels = 64,
+                kernel_size = 3,
+                stride=1,
+                padding=1
+            ),#64x512x512
+            nn.ReLU()
+        )
+        self.conv2 = nn.Sequential(
+            nn.Conv2d(
+                in_channels = 64,
+                out_channels = 64,
+                kernel_size = 3,
+                stride=1,
+                padding=1
+            ),#64x512x512
+            nn.ReLU()
+        )
         self.maxpooling1 = nn.MaxPool2d(kernel_size=2)#64x256x256
 
-        self.conv3 = nn.Conv2d(
-            in_channels=64,
-            out_channels=128,
-            kernel_size=3,
-            stride=1,
-            padding=1
-        )#128x256x256
-        self.conv4 = nn.Conv2d(
-            in_channels=128,
-            out_channels=128,
-            kernel_size=3,
-            stride=1,
-            padding=1
-        )#128x256x256
+        self.conv3 = nn.Sequential(
+            nn.Conv2d(
+                in_channels=64,
+                out_channels=128,
+                kernel_size=3,
+                stride=1,
+                padding=1
+            ),#128x256x256
+            nn.ReLU()
+        )
+        self.conv4 = nn.Sequential(
+            nn.Conv2d(
+                in_channels=128,
+                out_channels=128,
+                kernel_size=3,
+                stride=1,
+                padding=1
+            ),#128x256x256
+            nn.ReLU()
+        )
         self.maxpooling2 = nn.MaxPool2d(kernel_size=2)#128x128x128
 
-        self.conv5 = nn.Conv2d(
-            in_channels=128,
-            out_channels=256,
-            kernel_size=3,
-            stride=1,
-            padding=1
-        )#256x128x128
-        self.conv6 = nn.Conv2d(
-            in_channels=256,
-            out_channels=256,
-            kernel_size=3,
-            stride=1,
-            padding=1
-        )#256x128x128
-        self.conv7 = nn.Conv2d(
-            in_channels=256,
-            out_channels=256,
-            kernel_size=3,
-            stride=1,
-            padding=1
-        )#256x128x128
+        self.conv5 = nn.Sequential(
+            nn.Conv2d(
+                in_channels=128,
+                out_channels=256,
+                kernel_size=3,
+                stride=1,
+                padding=1
+            ),#256x128x128
+            nn.ReLU()
+        )
+        self.conv6 = nn.Sequential(
+            nn.Conv2d(
+                in_channels=256,
+                out_channels=256,
+                kernel_size=3,
+                stride=1,
+                padding=1
+            ),#256x128x128
+            nn.ReLU()
+        )
+        self.conv7 = nn.Sequential(
+            nn.Conv2d(
+                in_channels=256,
+                out_channels=256,
+                kernel_size=3,
+                stride=1,
+                padding=1
+            ),#256x128x128
+            nn.ReLU()
+        )
         self.maxpooling3 = nn.MaxPool2d(kernel_size=2)#256x64x64
 
-        self.conv8 = nn.Conv2d(
-            in_channels=256,
-            out_channels=512,
-            kernel_size=3,
-            stride=1,
-            padding=1
-        )#512x64x64
-        self.conv9 = nn.Conv2d(
-            in_channels=512,
-            out_channels=512,
-            kernel_size=3,
-            stride=1,
-            padding=1
-        )#512x64x64
-        self.conv10 = nn.Conv2d(
-            in_channels=512,
-            out_channels=512,
-            kernel_size=3,
-            stride=1,
-            padding=1
-        )#512x64x64
+        self.conv8 = nn.Sequential(
+            nn.Conv2d(
+                in_channels=256,
+                out_channels=512,
+                kernel_size=3,
+                stride=1,
+                padding=1
+            ),#512x64x64
+            nn.ReLU()
+        )
+        self.conv9 = nn.Sequential(
+            nn.Conv2d(
+                in_channels=512,
+                out_channels=512,
+                kernel_size=3,
+                stride=1,
+                padding=1
+            ),#512x64x64
+            nn.ReLU()
+        )
+        self.conv10 = nn.Sequential(
+            nn.Conv2d(
+                in_channels=512,
+                out_channels=512,
+                kernel_size=3,
+                stride=1,
+                padding=1
+            ),#512x64x64
+            nn.ReLU()
+        )
         self.maxpooling4 = nn.MaxPool2d(kernel_size=2)#512x32x32
 
-        self.conv11 = nn.Conv2d(
-            in_channels=512,
-            out_channels=1024,
-            kernel_size=3,
-            stride=1,
-            padding=1
-        )#1024x32x32
-        self.conv12 = nn.Conv2d(
-            in_channels=1024,
-            out_channels=1024,
-            kernel_size=3,
-            stride=1,
-            padding=1
-        )#1024x32x32
-        self.conv13 = nn.Conv2d(
-            in_channels=1024,
-            out_channels=1024,
-            kernel_size=3,
-            stride=1,
-            padding=1
-        )#1024x32x32
-
+        self.conv11 = nn.Sequential(
+            nn.Conv2d(
+                in_channels=512,
+                out_channels=1024,
+                kernel_size=3,
+                stride=1,
+                padding=1
+            ),#1024x32x32
+            nn.ReLU()
+        )
+        self.conv12 = nn.Sequential(
+            nn.Conv2d(
+                in_channels=1024,
+                out_channels=1024,
+                kernel_size=3,
+                stride=1,
+                padding=1
+            ),#1024x32x32
+            nn.ReLU()
+        )
+        self.conv13 = nn.Sequential(
+            nn.Conv2d(
+                in_channels=1024,
+                out_channels=1024,
+                kernel_size=3,
+                stride=1,
+                padding=1
+            ),#1024x32x32
+            nn.ReLU()
+        )
 
         self.scores1 = nn.Conv2d(1024, 2, 1)
         self.scores2 = nn.Conv2d(512, 2, 1)
@@ -123,28 +160,28 @@ class FCN(nn.Module):
 
     def forward(self, x):
         x = self.conv1(x)
-        x = self.conv2(x)
+        #x = self.conv2(x)
         x = self.maxpooling1(x)
 
         x = self.conv3(x)
-        x = self.conv4(x)
+        #x = self.conv4(x)
         x = self.maxpooling2(x)
 
         x = self.conv5(x)
-        x = self.conv6(x)
-        x = self.conv7(x)
+        #x = self.conv6(x)
+        #x = self.conv7(x)
         s1 = x.clone()#256x128x128
         x = self.maxpooling3(x)
 
         x = self.conv8(x)
-        x = self.conv9(x)
-        x = self.conv10(x)
+        #x = self.conv9(x)
+        #x = self.conv10(x)
         s2 = x.clone()#512x64x64
         x = self.maxpooling4(x)
 
         x = self.conv11(x)
-        x = self.conv12(x)
-        x = self.conv13(x)
+        #x = self.conv12(x)
+        #x = self.conv13(x)
         s3 = x.clone()#1024x32x32
 
         s3 = self.scores1(s3)#2x32x32
