@@ -42,10 +42,16 @@ class DataLoader(object):
     def test(self):
         files = os.listdir('/home/yuchen/Programs/cancer-prognosis/data/test')
         files.sort(key= lambda x:int(x[:-4]))
-        for file in files:
+
+        df = pd.read_excel("/home/yuchen/Programs/cancer-prognosis/data/data.xlsx")
+        contours = df["contour"]
+        poses = df["pos"]
+
+        for file, contour, pos in zip(files, contours, poses):
             file = os.path.join('/home/yuchen/Programs/cancer-prognosis/data/test', file)
             dcm = pc.read_file(file)
-            yield dcm.pixel_array
+            label = self.read_xlsx(contour, pos)
+            yield dcm.pixel_array, label
             
     def reset(self, batch_size):
         train = Batchgen(self.train_X, self.train_y, batch_size)
@@ -76,7 +82,7 @@ class DataLoader(object):
         cnt = 0
         for file, contour, pos in zip(files, contours, poses):
             self.read_dcm(os.path.join(self.data_path, file))
-            self.read_xlsx(contour,pos)
+            self.y.append(self.read_xlsx(contour,pos))
             if  i == 100:
                 self.centralize()
                 self.normalize()
@@ -96,7 +102,8 @@ class DataLoader(object):
         new_label = np.zeros((512,512))
         new_contour = self.parse(contour, pos)
         cv2.fillConvexPoly(new_label, new_contour, 1)
-        self.y.append(new_label)
+        return new_label
+        
 
 
     def parse(self, contour, pos):
